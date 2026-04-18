@@ -1,0 +1,10 @@
+{
+    "id": "TMSpeech.Translator.LocalEnZh",
+    "version": 1,
+    "name": "本地英中翻译器",
+    "desc": "基于CTranslate2的离线英中翻译插件",
+    "type": "plugin",
+    "assemblies": [
+        "TMSpeech.Translator.LocalEnZh.dll"
+    ]
+}
