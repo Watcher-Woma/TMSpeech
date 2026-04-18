@@ -44,6 +44,12 @@ public class CaptionStyleViewModel : ViewModelBase
     [ObservableAsProperty]
     public string Text { get; }
 
+    [ObservableAsProperty]
+    public Color TranslatedFontColor { get; }
+
+    [ObservableAsProperty]
+    public int TranslatedFontSize { get; }
+
     private IObservable<T> GetPropObservable<T>(string key)
     {
         return Observable.Return(ConfigManagerFactory.Instance.Get<T>(key))
@@ -93,6 +99,13 @@ public class CaptionStyleViewModel : ViewModelBase
             .CombineLatest(mainViewModel.WhenAnyValue(x => x.IsLocked),
                 (color, locked) => locked ? Colors.Transparent : color)
             .ToPropertyEx(this, x => x.MouseHover);
+
+        // Translation style
+        GetPropObservable<uint>(AppearanceConfigTypes.TranslatedFontColor)
+            .Select(Color.FromUInt32)
+            .ToPropertyEx(this, x => x.TranslatedFontColor);
+        GetPropObservable<int>(AppearanceConfigTypes.TranslatedFontSize)
+            .ToPropertyEx(this, x => x.TranslatedFontSize);
     }
 }
 
@@ -124,6 +137,12 @@ public class MainViewModel : ViewModelBase
     [ObservableAsProperty]
     public string Text { get; }
 
+    [ObservableAsProperty]
+    public string TranslatedText { get; }
+
+    [ObservableAsProperty]
+    public bool HasTranslation { get; }
+
     [Reactive]
     public bool IsLocked { get; set; }
 
@@ -135,6 +154,7 @@ public class MainViewModel : ViewModelBase
     public ReactiveCommand<Unit, Unit> LockCommand { get; }
 
     private readonly JobManager _jobManager;
+    private string _lastFinalTranslationOriginal = "";
 
     public MainViewModel()
     {
@@ -162,7 +182,7 @@ public class MainViewModel : ViewModelBase
             .Select(x => x == JobStatus.Running || x == JobStatus.Paused)
             .ToPropertyEx(this, x => x.StopButtonVisible);
 
-        this.LockCommand = ReactiveCommand.Create(() => { 
+        this.LockCommand = ReactiveCommand.Create(() => {
             IsLocked = true;
             // Inform user if user uses it for the first time.
             var lockedShown = ConfigManagerFactory.Instance.Get<bool>(NotificationConfigTypes.HasShownLockUsage);
@@ -230,6 +250,56 @@ public class MainViewModel : ViewModelBase
             .Select(x => x.EventArgs.Text.Text)
             .Merge(Observable.Return("欢迎使用TMSpeech"))
             .ToPropertyEx(this, x => x.Text);
+
+        // Translation text
+        var enableTranslation = Observable.Return(
+                ConfigManagerFactory.Instance.Get<bool>(TranslatorConfigTypes.EnableTranslation))
+            .Merge(
+                Observable.FromEventPattern<ConfigChangedEventArgs>(
+                        p => ConfigManagerFactory.Instance.ConfigChanged += p,
+                        p => ConfigManagerFactory.Instance.ConfigChanged -= p)
+                    .Where(x => x.EventArgs.Contains(TranslatorConfigTypes.EnableTranslation))
+                    .Select(_ => ConfigManagerFactory.Instance.Get<bool>(TranslatorConfigTypes.EnableTranslation)));
+
+        Observable.FromEventPattern<TranslationEventArgs>(
+                p => _jobManager.TranslationCompleted += p,
+                p => _jobManager.TranslationCompleted -= p)
+            .ObserveOn(RxApp.MainThreadScheduler)
+            .Subscribe(x =>
+            {
+                var args = x.EventArgs;
+                if (string.IsNullOrWhiteSpace(args.TranslatedText)) return;
+
+                // If this is a final translation, update the corresponding history entry
+                if (args.IsFinal)
+                {
+                    _lastFinalTranslationOriginal = args.OriginalText;
+                    if (HistoryTexts.Count > 0)
+                    {
+                        var lastItem = HistoryTexts[^1];
+                        if (lastItem.Text == args.OriginalText)
+                        {
+                            lastItem.TranslatedText = args.TranslatedText;
+                        }
+                    }
+                }
+
+                // Update current translated text
+                TranslatedText = args.TranslatedText;
+            });
+
+        // HasTranslation depends on enableTranslation and TranslatedText
+        enableTranslation
+            .CombineLatest(this.WhenAnyValue(x => x.TranslatedText),
+                (enabled, text) => enabled && !string.IsNullOrWhiteSpace(text))
+            .ToPropertyEx(this, x => x.HasTranslation);
+
+        // Reset translation when stopped
+        Observable.FromEventPattern<JobStatus>(
+                p => _jobManager.StatusChanged += p,
+                p => _jobManager.StatusChanged -= p)
+            .Where(x => x.EventArgs == JobStatus.Stopped)
+            .Subscribe(_ => { TranslatedText = ""; });
 
         Observable.FromEventPattern<SpeechEventArgs>(
                 p => _jobManager.SentenceDone += p,
