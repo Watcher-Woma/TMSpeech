@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -42,10 +43,12 @@ namespace TMSpeech.Core
         public event EventHandler<SpeechEventArgs> TextChanged;
         public event EventHandler<SpeechEventArgs> SentenceDone;
         public event EventHandler<long> RunningSecondsChanged;
+        public event EventHandler<TranslationEventArgs> TranslationCompleted;
 
         protected void OnTextChanged(SpeechEventArgs e) => TextChanged?.Invoke(this, e);
         protected void OnSentenceDone(SpeechEventArgs e) => SentenceDone?.Invoke(this, e);
         protected void OnUpdateRunningSeconds(long seconds) => RunningSecondsChanged?.Invoke(this, seconds);
+        protected void OnTranslationCompleted(TranslationEventArgs e) => TranslationCompleted?.Invoke(this, e);
 
         public abstract void Start();
         public abstract void Pause();
@@ -64,10 +67,16 @@ namespace TMSpeech.Core
 
         private IAudioSource? _audioSource;
         private IRecognizer? _recognizer;
+        private ITranslator? _translator;
         private HashSet<string> _sensitiveWords;
         private bool _disableInThisSentence = false;
         private string logFile;
         private string currentText = "";
+
+        private ConcurrentQueue<TranslationContextItem> _translationContext = new();
+        private const int MaxContextLength = 3;
+        private DateTime _lastPartialTranslationTime = DateTime.MinValue;
+        private const int PartialTranslationThrottleMs = 200;
 
         private void InitAudioSource()
         {
@@ -119,6 +128,37 @@ namespace TMSpeech.Core
             }
         }
 
+        private void InitTranslator()
+        {
+            var enableTranslation = ConfigManagerFactory.Instance.Get<bool>(TranslatorConfigTypes.EnableTranslation);
+            if (!enableTranslation)
+            {
+                _translator = null;
+                return;
+            }
+
+            var configTranslator = ConfigManagerFactory.Instance.Get<string>(TranslatorConfigTypes.Translator);
+            if (string.IsNullOrEmpty(configTranslator) || _pluginManager.Translators.Count == 0)
+            {
+                _translator = null;
+                return;
+            }
+
+            var config = ConfigManagerFactory.Instance.Get<string>(TranslatorConfigTypes.GetPluginConfigKey(configTranslator));
+            _translator = _pluginManager.Translators.ContainsKey(configTranslator)
+                ? _pluginManager.Translators[configTranslator]
+                : null;
+
+            if (_translator != null)
+            {
+                _translator.LoadConfig(config);
+                _translator.TranslationCompleted -= OnTranslationCompleted;
+                _translator.TranslationCompleted += OnTranslationCompleted;
+                _translator.ExceptionOccured -= OnPluginRunningExceptionOccurs;
+                _translator.ExceptionOccured += OnPluginRunningExceptionOccurs;
+            }
+        }
+
         private void OnRecognizerOnSentenceDone(object? sender, SpeechEventArgs args)
         {
             // Save the sentense to log
@@ -141,6 +181,14 @@ namespace TMSpeech.Core
             }
 
             _disableInThisSentence = false;
+
+            // 触发定稿翻译
+            if (_translator != null && !string.IsNullOrWhiteSpace(args.Text.Text))
+            {
+                _translator.SetContext(_translationContext.ToList());
+                _translator.TranslateAsync(args.Text.Text, isFinal: true);
+            }
+
             OnSentenceDone(args);
             currentText = "";
         }
@@ -158,7 +206,36 @@ namespace TMSpeech.Core
                 }
             }
 
+            // 触发临时翻译（节流：200ms 内只发送一次）
+            if (_translator != null && !string.IsNullOrWhiteSpace(args.Text.Text))
+            {
+                var now = DateTime.UtcNow;
+                if ((now - _lastPartialTranslationTime).TotalMilliseconds >= PartialTranslationThrottleMs)
+                {
+                    _lastPartialTranslationTime = now;
+                    _translator.SetContext(_translationContext.ToList());
+                    _translator.TranslateAsync(args.Text.Text, isFinal: false);
+                }
+            }
+
             OnTextChanged(args);
+        }
+
+        private void OnTranslationCompleted(object? sender, TranslationEventArgs args)
+        {
+            // 定稿翻译完成后，更新上下文缓存
+            if (args.IsFinal)
+            {
+                _translationContext.Enqueue(new TranslationContextItem
+                {
+                    SourceText = args.OriginalText,
+                    TranslatedText = args.TranslatedText
+                });
+                while (_translationContext.Count > MaxContextLength)
+                    _translationContext.TryDequeue(out _);
+            }
+
+            OnTranslationCompleted(args);
         }
 
         private void StartRecognize()
@@ -166,6 +243,7 @@ namespace TMSpeech.Core
             InitSensitiveWords();
             InitAudioSource();
             InitRecognizer();
+            InitTranslator();
 
             if (_audioSource == null || _recognizer == null)
             {
@@ -281,9 +359,16 @@ namespace TMSpeech.Core
             _recognizer.SentenceDone -= OnRecognizerOnSentenceDone;
             _recognizer.ExceptionOccured -= OnPluginRunningExceptionOccurs;
 
+            if (_translator != null)
+            {
+                _translator.TranslationCompleted -= OnTranslationCompleted;
+                _translator.ExceptionOccured -= OnPluginRunningExceptionOccurs;
+            }
 
             _audioSource = null;
             _recognizer = null;
+            _translator = null;
+            _translationContext.Clear();
         }
 
         public override void Start()

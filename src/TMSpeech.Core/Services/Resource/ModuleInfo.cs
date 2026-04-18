@@ -7,6 +7,7 @@ public static class ModuleInfoTypeEnums
     public const string Plugin = "plugin";
     public const string SherpaOnnxModel = "sherpaonnx_model";
     public const string SherpaNcnnModel = "sherpancnn_model";
+    public const string TranslatorModel = "translator_model";
 }
 
 public class ModuleInfo

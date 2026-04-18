@@ -11,6 +11,7 @@ namespace TMSpeech.Core.Plugins
         public DateTime Time { get; set; }
         public string TimeStr => Time.ToString("T");
         public string Text { get; set; }
+        public string? TranslatedText { get; set; }
         public TextInfo(string text)
         {
             Time = DateTime.Now;

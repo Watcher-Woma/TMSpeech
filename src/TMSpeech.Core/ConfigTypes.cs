@@ -37,6 +37,8 @@ public static class AppearanceConfigTypes
     public const string MouseHover = "appearance.MouseHover";
     public const string TextAlign = "appearance.TextAlign";
     public const string BackgroundColor = "appearance.BackgroundColor";
+    public const string TranslatedFontColor = "appearance.TranslatedFontColor";
+    public const string TranslatedFontSize = "appearance.TranslatedFontSize";
 
     public static class TextAlignEnum
     {
@@ -56,7 +58,9 @@ public static class AppearanceConfigTypes
         { FontColor, 0xFFFFFFFF },
         { MouseHover, 0x2709A9FF },
         { TextAlign, TextAlignEnum.Left },
-        { BackgroundColor, 0x00000000 }
+        { BackgroundColor, 0x00000000 },
+        { TranslatedFontColor, 0xFFCCCCCC },
+        { TranslatedFontSize, 32 }
     };
 
     public static Dictionary<string, object> DefaultConfig => _defaultConfig;
@@ -108,4 +112,37 @@ public static class RecognizerConfigTypes
     {
         return $"plugin.{pluginId}.config";
     }
+}
+
+public static class TranslatorConfigTypes
+{
+    public const string SectionName = "translator";
+
+    public const string Translator = "translator.source";
+    public const string EnableTranslation = "translator.enable";
+    public const string ShowOriginal = "translator.showOriginal";
+    public const string DisplayMode = "translator.displayMode";
+
+    public static string GetPluginConfigKey(string pluginId)
+    {
+        return $"plugin.{pluginId}.config";
+    }
+
+    public static class DisplayModeEnum
+    {
+        public const int Bilingual = 0;       // 双语对照
+        public const int OriginalOnly = 1;    // 仅原文
+        public const int TranslationOnly = 2; // 仅译文
+        public const int Alternating = 3;     // 交替展示
+    }
+
+    private static Dictionary<string, object> _defaultConfig => new()
+    {
+        { Translator, "" },
+        { EnableTranslation, false },
+        { ShowOriginal, true },
+        { DisplayMode, DisplayModeEnum.Bilingual },
+    };
+
+    public static Dictionary<string, object> DefaultConfig => _defaultConfig;
 }
