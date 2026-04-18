@@ -16,6 +16,7 @@ namespace TMSpeech.GUI
             var ret = GeneralConfigTypes.DefaultConfig
                 .Union(AppearanceConfigTypes.DefaultConfig)
                 .Union(NotificationConfigTypes.DefaultConfig)
+                .Union(TranslatorConfigTypes.DefaultConfig)
                 .ToDictionary(x => x.Key, x => x.Value);
             ret["audio.source"] = "TMSpeech:AudioSource:Windows!F32B7F03-7030-4960-A8DF-96377C8B5FDD";
             ret["recognizer.source"] = "TMSpeech:Recognizer:SherpaOnnx!3002EE6C-9770-419F-A745-E3148747AF4C";
