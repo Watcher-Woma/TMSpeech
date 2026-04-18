@@ -19,14 +19,19 @@
     </ItemsControl.ContextMenu>
     <ItemsControl.ItemTemplate>
       <DataTemplate>
-        <DockPanel IsHitTestVisible="True" Background="#01FFFFFF" 
+        <DockPanel IsHitTestVisible="True" Background="#01FFFFFF"
                    PointerPressed="InputElement_OnPointerPressed"
                    PointerReleased="InputElement_OnPointerReleased"
                    Cursor="IBeam"
                    Margin="8,4"
                    PointerMoved="InputElement_OnPointerMoved">
           <TextBlock IsHitTestVisible="False" Text="{Binding TimeStr}" Width="100"></TextBlock>
-          <SelectableTextBlock IsHitTestVisible="False" Text="{Binding Text}" TextWrapping="Wrap"></SelectableTextBlock>
+          <StackPanel>
+            <SelectableTextBlock IsHitTestVisible="False" Text="{Binding Text}" TextWrapping="Wrap"></SelectableTextBlock>
+            <SelectableTextBlock IsHitTestVisible="False" Text="{Binding TranslatedText}" TextWrapping="Wrap"
+                                 Foreground="Gray" FontSize="12"
+                                 IsVisible="{Binding TranslatedText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"></SelectableTextBlock>
+          </StackPanel>
         </DockPanel>
       </DataTemplate>
     </ItemsControl.ItemTemplate>

@@ -29,18 +29,6 @@ public partial class CaptionView : UserControl
         set => SetValue(ShadowSizeProperty, value);
     }
 
-    // FontSize is already defined in Control
-    // So use Control.FontSize instead of creating new property
-
-    // public new static readonly StyledProperty<double> FontSizeProperty = AvaloniaProperty.Register<CaptionView, double>(
-    //     "FontSize");
-    //
-    // public new double FontSize
-    // {
-    //     get => GetValue(FontSizeProperty);
-    //     set => SetValue(FontSizeProperty, value);
-    // }
-
     public static readonly StyledProperty<Color> FontColorProperty = AvaloniaProperty.Register<CaptionView, Color>(
         "FontColor", Colors.White);
 
@@ -68,5 +56,43 @@ public partial class CaptionView : UserControl
     {
         get => GetValue(TextProperty);
         set => SetValue(TextProperty, value);
+    }
+
+    // Translation support
+
+    public static readonly StyledProperty<string> TranslatedTextProperty = AvaloniaProperty.Register<CaptionView, string>(
+        "TranslatedText");
+
+    public string TranslatedText
+    {
+        get => GetValue(TranslatedTextProperty);
+        set => SetValue(TranslatedTextProperty, value);
+    }
+
+    public static readonly StyledProperty<Color> TranslatedFontColorProperty = AvaloniaProperty.Register<CaptionView, Color>(
+        "TranslatedFontColor", Colors.LightGray);
+
+    public Color TranslatedFontColor
+    {
+        get => GetValue(TranslatedFontColorProperty);
+        set => SetValue(TranslatedFontColorProperty, value);
+    }
+
+    public static readonly StyledProperty<int> TranslatedFontSizeProperty = AvaloniaProperty.Register<CaptionView, int>(
+        "TranslatedFontSize", 32);
+
+    public int TranslatedFontSize
+    {
+        get => GetValue(TranslatedFontSizeProperty);
+        set => SetValue(TranslatedFontSizeProperty, value);
+    }
+
+    public static readonly StyledProperty<bool> HasTranslationProperty = AvaloniaProperty.Register<CaptionView, bool>(
+        "HasTranslation", false);
+
+    public bool HasTranslation
+    {
+        get => GetValue(HasTranslationProperty);
+        set => SetValue(HasTranslationProperty, value);
     }
 }

@@ -25,8 +25,23 @@ public class TrayMenu : NativeMenu
                 { Header = "解锁字幕", Command = ReactiveCommand.Create(UnlockCaption) });
         }
 
+        // Translation toggle
+        var enableTranslation = ConfigManagerFactory.Instance.Get<bool>(TranslatorConfigTypes.EnableTranslation);
+        var translationToggle = new NativeMenuItem
+        {
+            Header = enableTranslation ? "关闭翻译" : "开启翻译",
+            Command = ReactiveCommand.Create(ToggleTranslation)
+        };
+        this.Items.Add(translationToggle);
+
         this.Items.Add(new NativeMenuItem { Header = "重置窗口位置", Command = ReactiveCommand.Create(ResetWindowLocation) });
         this.Items.Add(new NativeMenuItem { Header = "退出", Command = ReactiveCommand.Create(Exit) });
+    }
+
+    private void ToggleTranslation()
+    {
+        var current = ConfigManagerFactory.Instance.Get<bool>(TranslatorConfigTypes.EnableTranslation);
+        ConfigManagerFactory.Instance.Apply(TranslatorConfigTypes.EnableTranslation, !current);
     }
 
     private void ResetWindowLocation()
