@@ -228,6 +228,57 @@
                                      Value="{Binding PluginConfig, Mode=TwoWay}" />
         </StackPanel>
       </TabItem>
+      <TabItem>
+        <TabItem.Header>
+          <StackPanel Orientation="Horizontal">
+            <TextBlock>翻译</TextBlock>
+          </StackPanel>
+        </TabItem.Header>
+        <StackPanel DataContext="{Binding TranslatorSectionConfig}"
+                    IsEnabled="{Binding #winConfig.ViewModel.IsNotRunning}">
+          <controls:AutoGrid RowCount="100" ColumnDefinitions="100,*">
+            <Label>启用翻译</Label>
+            <CheckBox IsChecked="{Binding EnableTranslation, Mode=TwoWay}" />
+            <Label>翻译器</Label>
+            <DockPanel>
+              <Button DockPanel.Dock="Right">刷新</Button>
+              <ComboBox ItemsSource="{Binding TranslatorsAvailable}"
+                        SelectedValue="{Binding Translator}"
+                        SelectedValueBinding="{Binding Key}">
+                <ComboBox.Styles>
+                  <Style Selector="ComboBox /template/ ContentControl#ContentPresenter TextBlock.OnlyInPopup">
+                    <Setter Property="IsVisible" Value="False"></Setter>
+                  </Style>
+                </ComboBox.Styles>
+                <ComboBox.ItemTemplate>
+                  <DataTemplate>
+                    <StackPanel>
+                      <TextBlock Text="{Binding Value.Name}"></TextBlock>
+                      <TextBlock Text="{Binding Value.Description}" Classes="OnlyInPopup"></TextBlock>
+                    </StackPanel>
+                  </DataTemplate>
+                </ComboBox.ItemTemplate>
+              </ComboBox>
+            </DockPanel>
+            <Label>显示原文</Label>
+            <CheckBox IsChecked="{Binding ShowOriginal, Mode=TwoWay}" />
+            <Label>显示模式</Label>
+            <ComboBox
+              SelectedValueBinding="{Binding Key}"
+              SelectedValue="{Binding DisplayMode}"
+              ItemsSource="{Binding DisplayModes}">
+              <ComboBox.ItemTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding Value}"></TextBlock>
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+          </controls:AutoGrid>
+
+          <controls:PluginConfigView ConfigEditor="{Binding ConfigEditor}"
+                                     Value="{Binding PluginConfig, Mode=TwoWay}" />
+        </StackPanel>
+      </TabItem>
       <TabItem Header="插件" IsVisible="False"></TabItem>
       <TabItem Header="资源">
         <views:ResourceManagerView />

@@ -98,6 +98,10 @@
                        TextAlign="{Binding CaptionStyle.TextAlign}"
                        ShadowColor="{Binding CaptionStyle.ShadowColor}"
                        ShadowSize="{Binding CaptionStyle.ShadowSize}"
-                       Text="{Binding Text}" />
+                       Text="{Binding Text}"
+                       TranslatedText="{Binding TranslatedText}"
+                       TranslatedFontColor="{Binding CaptionStyle.TranslatedFontColor}"
+                       TranslatedFontSize="{Binding CaptionStyle.TranslatedFontSize}"
+                       HasTranslation="{Binding HasTranslation}" />
   </Grid>
 </Window>
