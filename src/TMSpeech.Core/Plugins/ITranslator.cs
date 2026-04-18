@@ -45,5 +45,10 @@ namespace TMSpeech.Core.Plugins
         /// 同步翻译（便捷接口，可选实现）
         /// </summary>
         string Translate(string text);
+
+        /// <summary>
+        /// 翻译器运行时异常事件
+        /// </summary>
+        event EventHandler<Exception>? ExceptionOccured;
     }
 }
