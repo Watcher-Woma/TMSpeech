@@ -22,6 +22,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TMSpeech.Recognizer.Command
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TMSpeech.Recognizer.SherpaNcnn", "src\Plugins\TMSpeech.Recognizer.SherpaNcnn\TMSpeech.Recognizer.SherpaNcnn.csproj", "{A46E36E6-7992-4B6C-A506-928304BABE7D}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TMSpeech.Translator.LocalEnZh", "src\Plugins\TMSpeech.Translator.LocalEnZh\TMSpeech.Translator.LocalEnZh.csproj", "{C5D6E7F8-9012-3456-ABCD-EF7890123456}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -56,6 +58,10 @@ Global
 		{2BC5E9A7-4D3C-4A1E-9B7F-8E6D5C4F3A2B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2BC5E9A7-4D3C-4A1E-9B7F-8E6D5C4F3A2B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2BC5E9A7-4D3C-4A1E-9B7F-8E6D5C4F3A2B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C5D6E7F8-9012-3456-ABCD-EF7890123456}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C5D6E7F8-9012-3456-ABCD-EF7890123456}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C5D6E7F8-9012-3456-ABCD-EF7890123456}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C5D6E7F8-9012-3456-ABCD-EF7890123456}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -65,6 +71,7 @@ Global
 		{8BD17489-0EFE-4FF2-B9A0-829C9F047825} = {067D976B-853C-432D-B522-9DA758808BCD}
 		{A46E36E6-7992-4B6C-A506-928304BABE7D} = {067D976B-853C-432D-B522-9DA758808BCD}
 		{2BC5E9A7-4D3C-4A1E-9B7F-8E6D5C4F3A2B} = {067D976B-853C-432D-B522-9DA758808BCD}
+		{C5D6E7F8-9012-3456-ABCD-EF7890123456} = {067D976B-853C-432D-B522-9DA758808BCD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4F0F1C03-F420-4F93-919B-49FFB10ED58F}
