@@ -53,8 +53,8 @@ internal sealed class Ct2Translator : IDisposable
 
         // Allocate native string arrays
         var sourceHandles = sourceList.Select(s => Marshal.StringToHGlobalAnsi(s)).ToArray();
-        var sourcePtrArray = Marshal.AllocHGlobal(sourceHandles.Count * IntPtr.Size);
-        for (int i = 0; i < sourceHandles.Count; i++)
+        var sourcePtrArray = Marshal.AllocHGlobal(sourceHandles.Length * IntPtr.Size);
+        for (int i = 0; i < sourceHandles.Length; i++)
             Marshal.WriteIntPtr(sourcePtrArray, i * IntPtr.Size, sourceHandles[i]);
 
         // Create translation options
@@ -138,9 +138,9 @@ internal sealed class Ct2Translator : IDisposable
         var hypothesisIdx = UIntPtr.Zero;
         var numTokens = Ct2NativeMethods.ctranslate2_translation_result_get_num_translations(result, hypothesisIdx);
 
-        for (UIntPtr i = UIntPtr.Zero; i < numTokens; i += UIntPtr.One)
+        for (ulong i = 0; i < numTokens.ToUInt64(); i++)
         {
-            var tokenPtr = Ct2NativeMethods.ctranslate2_translation_result_get_translation(result, hypothesisIdx, i);
+            var tokenPtr = Ct2NativeMethods.ctranslate2_translation_result_get_translation(result, hypothesisIdx, new UIntPtr(i));
             if (tokenPtr != IntPtr.Zero)
             {
                 var token = Marshal.PtrToStringAnsi(tokenPtr) ?? "";

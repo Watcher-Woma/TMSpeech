@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using TMSpeech.Core.Plugins;
 using TMSpeech.Core.Services.Resource;
 

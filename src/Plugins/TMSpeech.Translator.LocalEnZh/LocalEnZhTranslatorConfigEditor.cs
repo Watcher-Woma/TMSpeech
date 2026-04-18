@@ -9,8 +9,8 @@ public class LocalEnZhTranslatorConfigEditor : IPluginConfigEditor
 {
     private LocalEnZhConfig _config = new();
 
-    public event EventHandler? FormItemsUpdated;
-    public event EventHandler? ValueUpdated;
+    public event EventHandler<EventArgs>? FormItemsUpdated;
+    public event EventHandler<EventArgs>? ValueUpdated;
 
     public IReadOnlyList<PluginConfigFormItem> GetFormItems()
     {
