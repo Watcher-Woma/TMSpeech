@@ -137,8 +137,8 @@ public class MainViewModel : ViewModelBase
     [ObservableAsProperty]
     public string Text { get; }
 
-    [ObservableAsProperty]
-    public string TranslatedText { get; }
+    [Reactive]
+    public string TranslatedText { get; set; } = "";
 
     [ObservableAsProperty]
     public bool HasTranslation { get; }
